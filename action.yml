@@ -1,13 +1,12 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
-inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
-    required: true
-    default: '1000'
+name: 'CS3560 Homework 3 Check'
+author: 'Krerkkiat Chusap'
+description: 'Action to check submission of homework 3'
 outputs:
-  time: # output will be available to future steps 
-    description: 'The message to output'
+  linecount: # output will be available to future steps 
+    description: 'The count of the lines'
 runs:
   using: 'node12'
   main: 'dist/index.js'
+branding:
+  icon: 'check-square'
+  color: 'green'
