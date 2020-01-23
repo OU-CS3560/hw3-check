@@ -54,28 +54,54 @@ module.exports = require("os");
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 const core = __webpack_require__(470);
-const wait = __webpack_require__(949);
-
+const fs = __webpack_require__(747);
 
 // most @actions toolkit packages have async methods
 async function run() {
-  try { 
-    const ms = core.getInput('milliseconds');
-    console.log(`Waiting ${ms} milliseconds ...`)
+  const { exec } = __webpack_require__(129);
+  exec('git --no-pager show --pretty="" --name-only HEAD', (err, output, stderr) => {
+    if (err) {
+      console.log('\x1b[33m%s\x1b[0m', 'Could not find any path because: ');
+      console.log('\x1b[31m%s\x1b[0m', stderr);
+      process.exit(1);
 
-    core.debug((new Date()).toTimeString())
-    wait(parseInt(ms));
-    core.debug((new Date()).toTimeString())
+      return;
+    }
 
-    core.setOutput('time', new Date().toTimeString());
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
+    console.log(`Output: ${output}`);
+
+    const paths = output.split('\n');
+    const path = paths.filter((val, idx, arr) => {
+      if (val.endsWith('.md')) {
+        return true;
+      }
+    });
+
+    console.log('\x1b[32m%s\x1b[0m', `Found: ${path}`);
+
+    exec(`wc -l ${path}`, (err, line, stderr) => {
+      const space_index = line.search(' ');
+      const line_count = parseInt(line.substr(0, space_index));
+      console.log(`::set-output name=linecount::${line_count}`);
+
+      if (line_count < 5) {
+        console.log('\x1b[33m%s\x1b[0m', 'File contain less than 5 lines.');
+        process.exit(1);
+      }
+      process.exit(0);
+    });
+  });
 }
 
 run()
 
+
+/***/ }),
+
+/***/ 129:
+/***/ (function(module) {
+
+module.exports = require("child_process");
 
 /***/ }),
 
@@ -343,21 +369,10 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 949:
+/***/ 747:
 /***/ (function(module) {
 
-let wait = function(milliseconds) {
-  return new Promise((resolve, reject) => {
-    if (typeof(milliseconds) !== 'number') { 
-      throw new Error('milleseconds not a number'); 
-    }
-
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-}
-
-module.exports = wait;
-
+module.exports = require("fs");
 
 /***/ })
 
