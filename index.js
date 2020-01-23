@@ -22,6 +22,14 @@ async function run() {
       }
     });
 
+    if (path.length === 0) {
+      console.log('\x1b[33m%s\x1b[0m', 'Cannot find any file with md extension.');
+      process.exit(1);
+    } else if (path.length > 1) {
+      console.log('\x1b[33m%s\x1b[0m', 'Too many files with md extension.');
+      process.exit(1);
+    }
+
     console.log('\x1b[32m%s\x1b[0m', `Found: ${path}`);
 
     exec(`wc -l ${path}`, (err, line, stderr) => {
